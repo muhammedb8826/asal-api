@@ -1,9 +1,10 @@
 import { User } from './entities/user.entity';
 import { FixedCost } from './entities/fixed-cost.entity';
 import { Role } from './enums/role.enum';
-import * as bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt';
 import { DataSource } from 'typeorm';
 import * as dotenv from 'dotenv';
+import { randomUUID } from 'crypto';
 
 interface AdminUser {
   first_name: string;
@@ -22,6 +23,10 @@ interface AdminUser {
 
 // Load environment variables
 dotenv.config();
+
+const { hash: bcryptHash } = bcrypt as unknown as {
+  hash: (data: string, saltOrRounds: number) => Promise<string>;
+};
 
 const AppDataSource = new DataSource({
   type: 'postgres',
@@ -43,7 +48,7 @@ async function seed() {
     const userRepository = AppDataSource.getRepository(User);
     const fixedCostRepository = AppDataSource.getRepository(FixedCost);
 
-    const adminPassword = await bcrypt.hash('password', 10);
+    const adminPassword: string = await bcryptHash('password', 10);
     // Seed Admin
     const adminUserData: AdminUser = {
       first_name: 'ASAL',
@@ -65,7 +70,11 @@ async function seed() {
     });
 
     if (!existingUser) {
-      await userRepository.save(adminUserData);
+      const adminToSave = userRepository.create({
+        id: randomUUID(),
+        ...adminUserData,
+      });
+      await userRepository.save(adminToSave);
       console.log('Admin user created successfully');
     } else {
       console.log('Admin user already exists');
@@ -121,7 +130,11 @@ async function seed() {
       });
 
       if (!existingFixedCost) {
-        await fixedCostRepository.save(fixedCostData);
+        const fixedCostToSave = fixedCostRepository.create({
+          id: randomUUID(),
+          ...fixedCostData,
+        });
+        await fixedCostRepository.save(fixedCostToSave);
         console.log(
           `Fixed cost "${fixedCostData.description}" created successfully`,
         );
@@ -141,4 +154,4 @@ async function seed() {
   }
 }
 
-seed();
+void seed();
