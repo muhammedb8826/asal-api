@@ -16,27 +16,30 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: 22.18.0
+        node-version: 20.x
 
-    - name: Install dependencies
-      run: npm install
+    - name: Install deps and build
+      run: |
+        npm ci
+        npm run build
 
-    - name: Build ASAL API
-      run: npm run build
+    - name: Install production deps only
+      run: npm ci --omit=dev
 
-    - name: Deploy to cPanel via FTP
+    - name: Prepare deploy bundle
+      run: |
+        rm -rf deploy
+        mkdir -p deploy
+        cp package.json package-lock.json deploy/
+        cp -r dist deploy/dist
+        cp -r node_modules deploy/node_modules
+
+    - name: Deploy runtime bundle to cPanel via FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: ./
-        exclude: |
-            **/.git**
-            **/.github/**
-            **/test/**
-            **/src/**
-            **/node_modules/**
-            **/coverage/**
-            **/.env*
+        local-dir: deploy/
+        dangerous-clean-slate: true
         protocol: ftp
