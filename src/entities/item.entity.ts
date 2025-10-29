@@ -1,6 +1,7 @@
+import { randomUUID } from 'crypto';
 import {
   Entity,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   Column,
   ManyToOne,
   OneToMany,
@@ -9,6 +10,7 @@ import {
   JoinTable,
   JoinColumn,
   ManyToMany,
+  BeforeInsert,
 } from 'typeorm';
 import { Machine } from './machine.entity';
 import { UOM } from './uom.entity';
@@ -24,7 +26,7 @@ import { Service } from './service.entity';
 
 @Entity('items')
 export class Item {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn('uuid')
   id: string;
 
   @Column({ unique: true })
@@ -109,4 +111,11 @@ export class Item {
   @ManyToMany(() => Service, (service) => service.items)
   @JoinTable()
   services: Service[];
+
+  @BeforeInsert()
+  private setIdIfMissing(): void {
+    if (!this.id) {
+      this.id = randomUUID();
+    }
+  }
 }

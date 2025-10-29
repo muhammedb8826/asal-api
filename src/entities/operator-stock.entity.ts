@@ -1,18 +1,20 @@
+import { randomUUID } from 'crypto';
 import {
   Entity,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  BeforeInsert,
 } from 'typeorm';
 import { Item } from './item.entity';
 import { UOM } from './uom.entity';
 
 @Entity('operator_stock')
 export class OperatorStock {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn('uuid')
   id: string;
 
   @Column()
@@ -49,4 +51,11 @@ export class OperatorStock {
   @ManyToOne(() => UOM, (uom) => uom.operatorStock)
   @JoinColumn({ name: 'uomId' })
   uoms: UOM;
+
+  @BeforeInsert()
+  private setIdIfMissing(): void {
+    if (!this.id) {
+      this.id = randomUUID();
+    }
+  }
 }

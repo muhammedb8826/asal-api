@@ -1,12 +1,14 @@
+import { randomUUID } from 'crypto';
 import {
   Entity,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
   OneToMany,
+  BeforeInsert,
 } from 'typeorm';
 import { Item } from './item.entity';
 import { Order } from './order.entity';
@@ -18,7 +20,7 @@ import { OrderItemNotes } from './order-item-notes.entity';
 
 @Entity('order_items')
 export class OrderItems {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn('uuid')
   id: string;
 
   @Column()
@@ -126,4 +128,11 @@ export class OrderItems {
   )
   @JoinColumn({ name: 'nonStockServiceId' })
   nonStockService: NonStockService;
+
+  @BeforeInsert()
+  private setIdIfMissing(): void {
+    if (!this.id) {
+      this.id = randomUUID();
+    }
+  }
 }

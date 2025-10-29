@@ -1,16 +1,18 @@
+import { randomUUID } from 'crypto';
 import {
   Entity,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  BeforeInsert,
 } from 'typeorm';
 import { SaleItems } from './sale-item.entity';
 
 @Entity('sales')
 export class Sale {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn('uuid')
   id: string;
 
   @Column()
@@ -39,4 +41,11 @@ export class Sale {
 
   @OneToMany(() => SaleItems, (saleItems) => saleItems.sale)
   saleItems: SaleItems[];
+
+  @BeforeInsert()
+  private setIdIfMissing(): void {
+    if (!this.id) {
+      this.id = randomUUID();
+    }
+  }
 }

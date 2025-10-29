@@ -1,16 +1,18 @@
+import { randomUUID } from 'crypto';
 import {
   Entity,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
   Unique,
+  BeforeInsert,
 } from 'typeorm';
 
 @Entity('user_machine')
 @Unique(['machineId'])
 export class UserMachine {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn('uuid')
   id: string;
 
   @Column()
@@ -24,4 +26,11 @@ export class UserMachine {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @BeforeInsert()
+  private setIdIfMissing(): void {
+    if (!this.id) {
+      this.id = randomUUID();
+    }
+  }
 }

@@ -1,6 +1,7 @@
+import { randomUUID } from 'crypto';
 import {
   Entity,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
@@ -8,6 +9,7 @@ import {
   JoinColumn,
   OneToMany,
   ManyToOne,
+  BeforeInsert,
 } from 'typeorm';
 import { Order } from './order.entity';
 import { SalesPartner } from './sales-partner.entity';
@@ -15,7 +17,7 @@ import { CommissionTransaction } from './commission-transaction.entity';
 
 @Entity('commissions')
 export class Commission {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn('uuid')
   id: string;
 
   @Column({ unique: true })
@@ -52,4 +54,11 @@ export class Commission {
   })
   @JoinColumn({ name: 'salesPartnerId' })
   salesPartner: SalesPartner;
+
+  @BeforeInsert()
+  private setIdIfMissing(): void {
+    if (!this.id) {
+      this.id = randomUUID();
+    }
+  }
 }

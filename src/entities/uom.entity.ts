@@ -1,6 +1,7 @@
+import { randomUUID } from 'crypto';
 import {
   Entity,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
@@ -8,6 +9,7 @@ import {
   JoinColumn,
   OneToMany,
   Unique,
+  BeforeInsert,
 } from 'typeorm';
 import { UnitCategory } from './unit-category.entity';
 import { OperatorStock } from './operator-stock.entity';
@@ -20,7 +22,7 @@ import { Item } from './item.entity';
 @Entity('uom')
 @Unique(['name', 'abbreviation', 'unitCategoryId'])
 export class UOM {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn('uuid')
   id: string;
 
   @Column()
@@ -71,4 +73,11 @@ export class UOM {
 
   @OneToMany(() => Item, (item) => item.purchaseUom)
   purchaseUom: Item[];
+
+  @BeforeInsert()
+  private setIdIfMissing(): void {
+    if (!this.id) {
+      this.id = randomUUID();
+    }
+  }
 }

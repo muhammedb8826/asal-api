@@ -1,17 +1,19 @@
+import { randomUUID } from 'crypto';
 import {
   Entity,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  BeforeInsert,
 } from 'typeorm';
 import { Commission } from './commission.entity';
 
 @Entity('commission_transactions')
 export class CommissionTransaction {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn('uuid')
   id: string;
 
   @Column()
@@ -49,4 +51,11 @@ export class CommissionTransaction {
   })
   @JoinColumn({ name: 'commissionId' })
   commission: Commission;
+
+  @BeforeInsert()
+  private setIdIfMissing(): void {
+    if (!this.id) {
+      this.id = randomUUID();
+    }
+  }
 }

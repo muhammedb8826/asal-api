@@ -1,10 +1,12 @@
+import { randomUUID } from 'crypto';
 import {
   Entity,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   Column,
   ManyToOne,
   JoinColumn,
   Index,
+  BeforeInsert,
 } from 'typeorm';
 import { SaleItems } from './sale-item.entity';
 
@@ -12,7 +14,7 @@ import { SaleItems } from './sale-item.entity';
 @Index(['saleItemId'])
 @Index(['userId'])
 export class SalesItemNote {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn('uuid')
   id: string;
 
   @Column()
@@ -33,4 +35,11 @@ export class SalesItemNote {
   @ManyToOne(() => SaleItems, (saleItem) => saleItem.saleItemNotes)
   @JoinColumn({ name: 'saleItemId' })
   saleItem: SaleItems;
+
+  @BeforeInsert()
+  private setIdIfMissing(): void {
+    if (!this.id) {
+      this.id = randomUUID();
+    }
+  }
 }

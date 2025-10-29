@@ -1,17 +1,19 @@
+import { randomUUID } from 'crypto';
 import {
   Entity,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  BeforeInsert,
 } from 'typeorm';
 import { PaymentTerm } from './payment-term.entity';
 
 @Entity('payment_transactions')
 export class PaymentTransaction {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn('uuid')
   id: string;
 
   @Column()
@@ -46,4 +48,11 @@ export class PaymentTransaction {
   })
   @JoinColumn({ name: 'paymentTermId' })
   paymentTerm: PaymentTerm;
+
+  @BeforeInsert()
+  private setIdIfMissing(): void {
+    if (!this.id) {
+      this.id = randomUUID();
+    }
+  }
 }

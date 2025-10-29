@@ -1,19 +1,21 @@
+import { randomUUID } from 'crypto';
 import {
   Entity,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
   OneToOne,
   JoinColumn,
   OneToMany,
+  BeforeInsert,
 } from 'typeorm';
 import { Order } from './order.entity';
 import { PaymentTransaction } from './payment-transaction.entity';
 
 @Entity('payment_terms')
 export class PaymentTerm {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn('uuid')
   id: string;
 
   @Column({ unique: true })
@@ -47,4 +49,11 @@ export class PaymentTerm {
     { onDelete: 'CASCADE' },
   )
   transactions: PaymentTransaction[];
+
+  @BeforeInsert()
+  private setIdIfMissing(): void {
+    if (!this.id) {
+      this.id = randomUUID();
+    }
+  }
 }

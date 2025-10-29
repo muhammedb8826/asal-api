@@ -1,11 +1,13 @@
+import { randomUUID } from 'crypto';
 import {
   Entity,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   Column,
   CreateDateColumn,
   ManyToOne,
   JoinColumn,
   Index,
+  BeforeInsert,
 } from 'typeorm';
 import { PurchaseItems } from './purchase-item.entity';
 
@@ -13,7 +15,7 @@ import { PurchaseItems } from './purchase-item.entity';
 @Index(['purchaseItemId'])
 @Index(['userId'])
 export class PurchaseItemNote {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn('uuid')
   id: string;
 
   @Column()
@@ -40,4 +42,11 @@ export class PurchaseItemNote {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @BeforeInsert()
+  private setIdIfMissing(): void {
+    if (!this.id) {
+      this.id = randomUUID();
+    }
+  }
 }

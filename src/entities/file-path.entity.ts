@@ -1,16 +1,18 @@
+import { randomUUID } from 'crypto';
 import {
   Entity,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
   Unique,
+  BeforeInsert,
 } from 'typeorm';
 
 @Entity('file_path')
 @Unique(['description'])
 export class FilePath {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn('uuid')
   id: string;
 
   @Column()
@@ -27,4 +29,11 @@ export class FilePath {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @BeforeInsert()
+  private setIdIfMissing(): void {
+    if (!this.id) {
+      this.id = randomUUID();
+    }
+  }
 }

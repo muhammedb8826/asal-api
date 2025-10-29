@@ -1,6 +1,7 @@
+import { randomUUID } from 'crypto';
 import {
   Entity,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
@@ -8,6 +9,7 @@ import {
   JoinColumn,
   OneToMany,
   Unique,
+  BeforeInsert,
 } from 'typeorm';
 import { Item } from './item.entity';
 import { Purchase } from './purchase.entity';
@@ -17,7 +19,7 @@ import { PurchaseItemNote } from './purchase-item-note.entity';
 @Entity('purchase_items')
 @Unique(['purchaseId', 'itemId'])
 export class PurchaseItems {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn('uuid')
   id: string;
 
   @Column()
@@ -73,4 +75,11 @@ export class PurchaseItems {
   @ManyToOne(() => UOM, (uom) => uom.purchaseItems)
   @JoinColumn({ name: 'uomId' })
   uoms: UOM;
+
+  @BeforeInsert()
+  private setIdIfMissing(): void {
+    if (!this.id) {
+      this.id = randomUUID();
+    }
+  }
 }
