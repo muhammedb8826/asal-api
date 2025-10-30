@@ -10,6 +10,7 @@ async function bootstrap() {
       'http://localhost:3000',
       'http://localhost:5173',
       'https://abayictsolution.com',
+      'https://asal.abayictsolution.com',
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: [
