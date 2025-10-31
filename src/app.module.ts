@@ -4,6 +4,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { PricingModule } from './pricing/pricing.module';
+import { CategoryModule } from './category/category.module';
+import { CustomerModule } from './customer/customer.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -25,6 +28,9 @@ import configuration from './config/configuration';
       logging: process.env.DB_LOGGING === 'true' || false,
     }),
     AuthModule,
+    PricingModule,
+    CategoryModule,
+    CustomerModule,
   ],
   controllers: [AppController],
   providers: [AppService],

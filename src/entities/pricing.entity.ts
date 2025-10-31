@@ -7,15 +7,9 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
-  OneToMany,
   BeforeInsert,
 } from 'typeorm';
 import { Item } from './item.entity';
-import { Service } from './service.entity';
-import { NonStockService } from './non-stock-service.entity';
-import { UOM } from './uom.entity';
-import { OrderItems } from './order-item.entity';
-
 @Entity('pricing')
 export class Pricing {
   @PrimaryColumn('uuid')
@@ -23,21 +17,28 @@ export class Pricing {
 
   @Column()
   itemId: string;
-
-  @Column({ nullable: true })
-  serviceId: string;
-
-  @Column({ nullable: true })
-  nonStockServiceId: string;
-
-  @Column({ default: false })
-  isNonStockService: boolean;
-
   @Column('float')
   sellingPrice: number;
 
   @Column('float')
   costPrice: number;
+
+  // Temporal versioning
+  @Column({ type: 'date' })
+  effectiveFrom: Date;
+
+  @Column({ type: 'date', nullable: true })
+  effectiveTo: Date | null;
+
+  @Column({ default: true })
+  isActive: boolean;
+
+  // Optional pricing tiers
+  @Column({ type: 'varchar', nullable: true })
+  customerType: string | null; // 'retail', 'wholesale', 'vip'
+
+  @Column('int', { nullable: true })
+  minQuantity: number | null;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -45,44 +46,23 @@ export class Pricing {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Column({ default: false })
-  constant: boolean;
-
-  @Column('float', { nullable: true })
-  height: number;
-
-  @Column('float', { nullable: true })
-  width: number;
-
-  @Column()
-  baseUomId: string;
-
-  @ManyToOne(() => UOM, (uom) => uom.pricing)
-  @JoinColumn({ name: 'baseUomId' })
-  uom: UOM;
-
   @ManyToOne(() => Item, (item) => item.pricing)
   @JoinColumn({ name: 'itemId' })
   item: Item;
-
-  @ManyToOne(() => Service, (service) => service.pricing)
-  @JoinColumn({ name: 'serviceId' })
-  service: Service;
-
-  @ManyToOne(
-    () => NonStockService,
-    (nonStockService) => nonStockService.pricing,
-  )
-  @JoinColumn({ name: 'nonStockServiceId' })
-  nonStockService: NonStockService;
-
-  @OneToMany(() => OrderItems, (orderItems) => orderItems.pricing)
-  orderItems: OrderItems[];
 
   @BeforeInsert()
   private setIdIfMissing(): void {
     if (!this.id) {
       this.id = randomUUID();
+    }
+    if (!this.effectiveFrom) {
+      this.effectiveFrom = new Date();
+    }
+    if (this.effectiveTo === undefined) {
+      this.effectiveTo = null;
+    }
+    if (this.isActive === undefined) {
+      this.isActive = true;
     }
   }
 }

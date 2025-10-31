@@ -33,6 +33,10 @@ export class Customer {
   @Column({ nullable: true })
   description: string;
 
+  // Optional: classify customer for pricing/segmentation (e.g., retail, wholesale, vip)
+  @Column({ type: 'varchar', nullable: true })
+  customerType: string | null;
+
   @CreateDateColumn()
   createdAt: Date;
 

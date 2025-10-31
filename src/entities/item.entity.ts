@@ -7,12 +7,10 @@ import {
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
-  JoinTable,
   JoinColumn,
-  ManyToMany,
   BeforeInsert,
 } from 'typeorm';
-import { Machine } from './machine.entity';
+import { Category } from './category.entity';
 import { UOM } from './uom.entity';
 import { UnitCategory } from './unit-category.entity';
 import { Attribute } from './attribute.entity';
@@ -22,13 +20,10 @@ import { Pricing } from './pricing.entity';
 import { PurchaseItems } from './purchase-item.entity';
 import { SaleItems } from './sale-item.entity';
 import { Discount } from './discount.entity';
-import { Service } from './service.entity';
-
 @Entity('items')
 export class Item {
   @PrimaryColumn('uuid')
   id: string;
-
   @Column({ unique: true })
   name: string;
 
@@ -45,7 +40,7 @@ export class Item {
   updated_initial_stock: number;
 
   @Column()
-  machineId: string;
+  categoryId: string;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -96,9 +91,9 @@ export class Item {
   @JoinColumn({ name: 'defaultUomId' })
   defaultUom: UOM;
 
-  @ManyToOne(() => Machine, (machine) => machine.items)
-  @JoinColumn({ name: 'machineId' })
-  machine: Machine;
+  @ManyToOne(() => Category, (category) => category.items)
+  @JoinColumn({ name: 'categoryId' })
+  category: Category;
 
   @ManyToOne(() => UOM, (uom) => uom.purchaseUom)
   @JoinColumn({ name: 'purchaseUomId' })
@@ -107,10 +102,6 @@ export class Item {
   @ManyToOne(() => UnitCategory, (unitCategory) => unitCategory.items)
   @JoinColumn({ name: 'unitCategoryId' })
   unitCategory: UnitCategory;
-
-  @ManyToMany(() => Service, (service) => service.items)
-  @JoinTable()
-  services: Service[];
 
   @BeforeInsert()
   private setIdIfMissing(): void {

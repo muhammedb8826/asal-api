@@ -12,10 +12,8 @@ import {
 } from 'typeorm';
 import { Item } from './item.entity';
 import { Order } from './order.entity';
-import { Pricing } from './pricing.entity';
 import { UOM } from './uom.entity';
-import { Service } from './service.entity';
-import { NonStockService } from './non-stock-service.entity';
+
 import { OrderItemNotes } from './order-item-notes.entity';
 
 @Entity('order_items')
@@ -81,9 +79,6 @@ export class OrderItems {
   isDiscounted: boolean;
 
   @Column()
-  pricingId: string;
-
-  @Column()
   baseUomId: string;
 
   @Column('float')
@@ -106,10 +101,6 @@ export class OrderItems {
   @JoinColumn({ name: 'orderId' })
   order: Order;
 
-  @ManyToOne(() => Pricing, (pricing) => pricing.orderItems)
-  @JoinColumn({ name: 'pricingId' })
-  pricing: Pricing;
-
   @ManyToOne(() => UOM, (uom) => uom.orderItems)
   @JoinColumn({ name: 'uomId' })
   uom: UOM;
@@ -117,17 +108,6 @@ export class OrderItems {
   @ManyToOne(() => UOM, (baseUom) => baseUom.baseOrderItems)
   @JoinColumn({ name: 'baseUomId' })
   baseUom: UOM;
-
-  @ManyToOne(() => Service, (service) => service.orderItems)
-  @JoinColumn({ name: 'serviceId' })
-  service: Service;
-
-  @ManyToOne(
-    () => NonStockService,
-    (nonStockService) => nonStockService.orderItems,
-  )
-  @JoinColumn({ name: 'nonStockServiceId' })
-  nonStockService: NonStockService;
 
   @BeforeInsert()
   private setIdIfMissing(): void {

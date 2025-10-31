@@ -14,7 +14,6 @@ import {
 import { UnitCategory } from './unit-category.entity';
 import { OperatorStock } from './operator-stock.entity';
 import { OrderItems } from './order-item.entity';
-import { Pricing } from './pricing.entity';
 import { PurchaseItems } from './purchase-item.entity';
 import { SaleItems } from './sale-item.entity';
 import { Item } from './item.entity';
@@ -54,9 +53,6 @@ export class UOM {
 
   @OneToMany(() => OrderItems, (baseOrderItems) => baseOrderItems.baseUom)
   baseOrderItems: OrderItems[];
-
-  @OneToMany(() => Pricing, (pricing) => pricing.uom)
-  pricing: Pricing[];
 
   @OneToMany(() => PurchaseItems, (purchaseItems) => purchaseItems.uoms)
   purchaseItems: PurchaseItems[];

@@ -8,11 +8,10 @@ import {
   UpdateDateColumn,
   BeforeInsert,
 } from 'typeorm';
-import { Pricing } from './pricing.entity';
-import { OrderItems } from './order-item.entity';
+import { Item } from './item.entity';
 
-@Entity('non_stock_services')
-export class NonStockService {
+@Entity('categories')
+export class Category {
   @PrimaryColumn('uuid')
   id: string;
 
@@ -31,11 +30,8 @@ export class NonStockService {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @OneToMany(() => Pricing, (pricing) => pricing.nonStockService)
-  pricing: Pricing[];
-
-  @OneToMany(() => OrderItems, (orderItems) => orderItems.nonStockService)
-  orderItems: OrderItems[];
+  @OneToMany(() => Item, (item) => item.category)
+  items: Item[];
 
   @BeforeInsert()
   private setIdIfMissing(): void {
