@@ -89,6 +89,28 @@ The API will be available at `http://localhost:3001`
 | POST   | `/logout` | Logout user | Yes |
 | POST   | `/refresh` | Refresh access token | Yes |
 
+### Key Endpoints
+
+| Area | Method | Endpoint | Description |
+|------|--------|----------|-------------|
+| Categories | GET | `/categories` | List categories |
+| Categories | POST | `/categories` | Create category |
+| Categories | GET | `/categories/:id` | Get category by id |
+| Categories | PATCH | `/categories/:id` | Update category |
+| Categories | DELETE | `/categories/:id` | Delete category |
+| Unit Categories | GET | `/unit-categories` | List unit categories |
+| Unit Categories | POST | `/unit-categories` | Create unit category |
+| Unit Categories | GET | `/unit-categories/:id` | Get unit category by id |
+| Unit Categories | PATCH | `/unit-categories/:id` | Update unit category |
+| Unit Categories | DELETE | `/unit-categories/:id` | Delete unit category |
+| UOMs | GET | `/uoms` | List units of measure (filter by unitCategoryId) |
+| UOMs | POST | `/uoms` | Create unit of measure |
+| UOMs | GET | `/uoms/:id` | Get UOM by id |
+| UOMs | PATCH | `/uoms/:id` | Update UOM |
+| UOMs | DELETE | `/uoms/:id` | Delete UOM |
+
+See `CATEGORY_CRUD_GUIDE.md` (Categories) and `UOM_CATEGORY_API.md` (Unit Categories & UOMs) for full request/response payloads and validation rules.
+
 ### Example Usage
 
 **Register a new user:**
@@ -128,7 +150,9 @@ The application includes the following main entities:
 - **Purchase** - Purchase management
 - **Sale** - Sales management
 - **Item** - Product/item management
-- **Machine** - Equipment management
+- **Category** - Item categorization
+- **UnitCategory** - Measurement dimensions (e.g., Weight, Length)
+- **UOM** - Units of Measure (e.g., Kilogram, Gram) with conversion rates
 - **Customer** - Customer information
 - **Vendor** - Vendor information
 

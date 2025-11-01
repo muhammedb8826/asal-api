@@ -10,6 +10,8 @@ import {
   OneToMany,
   Unique,
   BeforeInsert,
+  Index,
+  Check,
 } from 'typeorm';
 import { UnitCategory } from './unit-category.entity';
 import { OperatorStock } from './operator-stock.entity';
@@ -20,6 +22,8 @@ import { Item } from './item.entity';
 
 @Entity('uom')
 @Unique(['name', 'abbreviation', 'unitCategoryId'])
+@Index(['unitCategoryId'])
+@Check('CHK_UOM_CONVERSION_RATE_POSITIVE', '"conversionRate" > 0')
 export class UOM {
   @PrimaryColumn('uuid')
   id: string;
@@ -30,8 +34,10 @@ export class UOM {
   @Column()
   abbreviation: string;
 
-  @Column('float')
-  conversionRate: number;
+  // Multiplier to convert entered quantity into base-unit quantity
+  // Example: if base is Kilogram, Gram.conversionRate = 0.001
+  @Column('decimal', { precision: 18, scale: 9 })
+  conversionRate: string;
 
   @Column({ default: false })
   baseUnit: boolean;
@@ -75,5 +81,11 @@ export class UOM {
     if (!this.id) {
       this.id = randomUUID();
     }
+  }
+
+  // Helper: convert a quantity to base-unit quantity using this UOM
+  toBase(quantity: number): number {
+    const rate = Number(this.conversionRate);
+    return quantity * rate;
   }
 }

@@ -6,7 +6,9 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { PricingModule } from './pricing/pricing.module';
 import { CategoryModule } from './category/category.module';
+import { UomModule } from './uom/uom.module';
 import { CustomerModule } from './customer/customer.module';
+import { UnitCategoryModule } from './unit-category/unit-category.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -30,7 +32,9 @@ import configuration from './config/configuration';
     AuthModule,
     PricingModule,
     CategoryModule,
+    UomModule,
     CustomerModule,
+    UnitCategoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
