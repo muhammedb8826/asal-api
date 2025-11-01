@@ -9,8 +9,8 @@ async function bootstrap() {
     origin: [
       'http://localhost:3000',
       'http://localhost:5173',
-      'https://abayictsolution.com',
-      'https://asal.abayictsolution.com',
+      'https://qenenia.com',
+      'https://asal.qenenia.com',
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: [

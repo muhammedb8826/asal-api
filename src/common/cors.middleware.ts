@@ -5,10 +5,10 @@ import { Request, Response, NextFunction } from 'express';
 export class CorsMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
     const allowedOrigins = [
-      'https://abayictsolution.com',
+      'https://qenenia.com',
       'http://localhost:5173',
       'http://localhost:3000',
-      'https://asal.abayictsolution.com',
+      'https://asal.qenenia.com',
     ];
 
     const origin = req.headers.origin;
