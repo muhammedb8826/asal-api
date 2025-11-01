@@ -23,16 +23,12 @@ jobs:
         npm ci
         npm run build
 
-    - name: Install production deps only
-      run: npm ci --omit=dev
-
     - name: Prepare deploy bundle
       run: |
         rm -rf deploy
         mkdir -p deploy
         cp package.json package-lock.json deploy/
         cp -r dist deploy/dist
-        cp -r node_modules deploy/node_modules
 
     - name: Deploy runtime bundle to cPanel via FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
