@@ -18,17 +18,16 @@ jobs:
       with:
         node-version: 20.x
 
-    - name: Install deps and build
-      run: |
-        npm ci
-        npm run build
+    # No build in CI — we'll build on the server
 
-    - name: Prepare deploy bundle
+    - name: Prepare deploy bundle (build-time files only)
       run: |
         rm -rf deploy
         mkdir -p deploy
         cp package.json package-lock.json deploy/
-        cp -r dist deploy/dist
+        cp tsconfig.json tsconfig.build.json nest-cli.json deploy/
+        mkdir -p deploy/src
+        cp -r src/* deploy/src/
 
     - name: Deploy runtime bundle to cPanel via FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
