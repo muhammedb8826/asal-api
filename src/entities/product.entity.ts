@@ -13,31 +13,26 @@ import {
 import { Category } from './category.entity';
 import { UOM } from './uom.entity';
 import { UnitCategory } from './unit-category.entity';
-import { Attribute } from './attribute.entity';
-import { OperatorStock } from './operator-stock.entity';
-import { OrderItems } from './order-item.entity';
 import { Pricing } from './pricing.entity';
 import { PurchaseItems } from './purchase-item.entity';
 import { SaleItems } from './sale-item.entity';
+import { OrderItems } from './order-item.entity';
+import { OperatorStock } from './operator-stock.entity';
+import { Attribute } from './attribute.entity';
 import { Discount } from './discount.entity';
-@Entity('items')
-export class Item {
+@Entity('products')
+export class Product {
   @PrimaryColumn('uuid')
   id: string;
+
   @Column({ unique: true })
   name: string;
 
   @Column({ nullable: true })
-  description: string;
+  internalNote: string;
 
   @Column()
-  reorder_level: number;
-
-  @Column()
-  initial_stock: number;
-
-  @Column()
-  updated_initial_stock: number;
+  reorderLevel: number;
 
   @Column()
   categoryId: string;
@@ -49,12 +44,12 @@ export class Item {
   updatedAt: Date;
 
   @Column({ default: true })
-  can_be_purchased: boolean;
+  canBePurchased: boolean;
 
   @Column({ default: true })
-  can_be_sold: boolean;
+  canBeSold: boolean;
 
-  @Column()
+  @Column({ default: 0 })
   quantity: number;
 
   @Column({ nullable: true })
@@ -66,32 +61,35 @@ export class Item {
   @Column({ nullable: true })
   purchaseUomId: string;
 
-  @OneToMany(() => Attribute, (attribute) => attribute.items)
-  attributes: Attribute[];
+  @Column({ nullable: true })
+  image: string;
 
-  @OneToMany(() => OperatorStock, (operatorStock) => operatorStock.item)
-  operatorStock: OperatorStock[];
-
-  @OneToMany(() => OrderItems, (orderItems) => orderItems.item)
-  OrderItems: OrderItems[];
-
-  @OneToMany(() => Pricing, (pricing) => pricing.item)
+  @OneToMany(() => Pricing, (pricing) => pricing.product)
   pricing: Pricing[];
 
-  @OneToMany(() => PurchaseItems, (purchaseItems) => purchaseItems.item)
+  @OneToMany(() => PurchaseItems, (purchaseItems) => purchaseItems.product)
   purchases: PurchaseItems[];
 
-  @OneToMany(() => SaleItems, (saleItems) => saleItems.item)
+  @OneToMany(() => SaleItems, (saleItems) => saleItems.product)
   sales: SaleItems[];
 
-  @OneToMany(() => Discount, (discount) => discount.items)
+  @OneToMany(() => OrderItems, (orderItems) => orderItems.product)
+  orderItems: OrderItems[];
+
+  @OneToMany(() => OperatorStock, (operatorStock) => operatorStock.product)
+  operatorStock: OperatorStock[];
+
+  @OneToMany(() => Attribute, (attribute) => attribute.product)
+  attributes: Attribute[];
+
+  @OneToMany(() => Discount, (discount) => discount.product)
   discounts: Discount[];
 
   @ManyToOne(() => UOM, (uom) => uom.defaultUom)
   @JoinColumn({ name: 'defaultUomId' })
   defaultUom: UOM;
 
-  @ManyToOne(() => Category, (category) => category.items)
+  @ManyToOne(() => Category, (category) => category.products)
   @JoinColumn({ name: 'categoryId' })
   category: Category;
 
@@ -99,7 +97,7 @@ export class Item {
   @JoinColumn({ name: 'purchaseUomId' })
   purchaseUom: UOM;
 
-  @ManyToOne(() => UnitCategory, (unitCategory) => unitCategory.items)
+  @ManyToOne(() => UnitCategory, (unitCategory) => unitCategory.products)
   @JoinColumn({ name: 'unitCategoryId' })
   unitCategory: UnitCategory;
 
@@ -110,3 +108,6 @@ export class Item {
     }
   }
 }
+
+// Alias for legacy Item references
+export const Item = Product;

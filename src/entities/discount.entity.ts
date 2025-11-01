@@ -10,7 +10,7 @@ import {
   Unique,
   BeforeInsert,
 } from 'typeorm';
-import { Item } from './item.entity';
+import { Product } from './product.entity';
 
 @Entity('discounts')
 @Unique(['itemId', 'level'])
@@ -39,9 +39,9 @@ export class Discount {
   @Column({ nullable: true })
   description: string;
 
-  @ManyToOne(() => Item, (item) => item.discounts)
+  @ManyToOne(() => Product, (product) => product.discounts)
   @JoinColumn({ name: 'itemId' })
-  items: Item;
+  product: Product;
 
   @BeforeInsert()
   private setIdIfMissing(): void {

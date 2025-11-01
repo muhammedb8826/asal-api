@@ -9,7 +9,7 @@ import {
   JoinColumn,
   BeforeInsert,
 } from 'typeorm';
-import { Item } from './item.entity';
+import { Product } from './product.entity';
 @Entity('pricing')
 export class Pricing {
   @PrimaryColumn('uuid')
@@ -46,9 +46,9 @@ export class Pricing {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToOne(() => Item, (item) => item.pricing)
+  @ManyToOne(() => Product, (product) => product.pricing)
   @JoinColumn({ name: 'itemId' })
-  item: Item;
+  product: Product;
 
   @BeforeInsert()
   private setIdIfMissing(): void {

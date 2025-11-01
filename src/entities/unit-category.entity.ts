@@ -9,7 +9,7 @@ import {
   BeforeInsert,
 } from 'typeorm';
 import { UOM } from './uom.entity';
-import { Item } from './item.entity';
+import { Product } from './product.entity';
 
 @Entity('unit_category')
 export class UnitCategory {
@@ -37,8 +37,8 @@ export class UnitCategory {
   @OneToMany(() => UOM, (uom) => uom.unitCategory)
   uoms: UOM[];
 
-  @OneToMany(() => Item, (item) => item.unitCategory)
-  items: Item[];
+  @OneToMany(() => Product, (product) => product.unitCategory)
+  products: Product[];
 
   @BeforeInsert()
   private setIdIfMissing(): void {

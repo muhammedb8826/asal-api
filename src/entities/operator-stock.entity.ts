@@ -9,7 +9,7 @@ import {
   JoinColumn,
   BeforeInsert,
 } from 'typeorm';
-import { Item } from './item.entity';
+import { Product } from './product.entity';
 import { UOM } from './uom.entity';
 
 @Entity('operator_stock')
@@ -44,9 +44,9 @@ export class OperatorStock {
   @Column('float')
   unit: number;
 
-  @ManyToOne(() => Item, (item) => item.operatorStock)
+  @ManyToOne(() => Product, (product) => product.operatorStock)
   @JoinColumn({ name: 'itemId' })
-  item: Item;
+  product: Product;
 
   @ManyToOne(() => UOM, (uom) => uom.operatorStock)
   @JoinColumn({ name: 'uomId' })

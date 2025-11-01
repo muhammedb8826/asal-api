@@ -108,8 +108,13 @@ The API will be available at `http://localhost:3001`
 | UOMs | GET | `/uoms/:id` | Get UOM by id |
 | UOMs | PATCH | `/uoms/:id` | Update UOM |
 | UOMs | DELETE | `/uoms/:id` | Delete UOM |
+| Products | GET | `/products` | List products | 
+| Products | POST | `/products` | Create product (with image upload) |
+| Products | GET | `/products/:id` | Get product by id |
+| Products | PATCH | `/products/:id` | Update product (with image upload) |
+| Products | DELETE | `/products/:id` | Delete product |
 
-See `CATEGORY_CRUD_GUIDE.md` (Categories) and `UOM_CATEGORY_API.md` (Unit Categories & UOMs) for full request/response payloads and validation rules.
+See `CATEGORY_CRUD_GUIDE.md` (Categories), `UOM_CATEGORY_API.md` (Unit Categories & UOMs), and `PRODUCT_CRUD_GUIDE.md` (Products) for full request/response payloads and validation rules.
 
 ### Example Usage
 
@@ -149,7 +154,7 @@ The application includes the following main entities:
 - **FixedCost** - Business fixed costs tracking
 - **Purchase** - Purchase management
 - **Sale** - Sales management
-- **Item** - Product/item management
+- **Product** - Product management with image upload
 - **Category** - Item categorization
 - **UnitCategory** - Measurement dimensions (e.g., Weight, Length)
 - **UOM** - Units of Measure (e.g., Kilogram, Gram) with conversion rates

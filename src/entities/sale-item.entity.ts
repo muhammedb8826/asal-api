@@ -10,7 +10,7 @@ import {
   OneToMany,
   BeforeInsert,
 } from 'typeorm';
-import { Item } from './item.entity';
+import { Product } from './product.entity';
 import { Sale } from './sale.entity';
 import { UOM } from './uom.entity';
 import { SalesItemNote } from './sales-item-note.entity';
@@ -50,9 +50,9 @@ export class SaleItems {
   @Column('float')
   unit: number;
 
-  @ManyToOne(() => Item, (item) => item.sales)
+  @ManyToOne(() => Product, (product) => product.sales)
   @JoinColumn({ name: 'itemId' })
-  item: Item;
+  product: Product;
 
   @ManyToOne(() => Sale, (sale) => sale.saleItems)
   @JoinColumn({ name: 'saleId' })

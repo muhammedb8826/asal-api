@@ -9,6 +9,7 @@ import { CategoryModule } from './category/category.module';
 import { UomModule } from './uom/uom.module';
 import { CustomerModule } from './customer/customer.module';
 import { UnitCategoryModule } from './unit-category/unit-category.module';
+import { ProductModule } from './product/product.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -35,6 +36,7 @@ import configuration from './config/configuration';
     UomModule,
     CustomerModule,
     UnitCategoryModule,
+    ProductModule,
   ],
   controllers: [AppController],
   providers: [AppService],

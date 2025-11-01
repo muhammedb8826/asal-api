@@ -10,7 +10,7 @@ import {
   OneToMany,
   BeforeInsert,
 } from 'typeorm';
-import { Item } from './item.entity';
+import { Product } from './product.entity';
 import { Order } from './order.entity';
 import { UOM } from './uom.entity';
 
@@ -93,9 +93,9 @@ export class OrderItems {
   @OneToMany(() => OrderItemNotes, (orderItemNotes) => orderItemNotes.orderItem)
   orderItemNotes: OrderItemNotes[];
 
-  @ManyToOne(() => Item, (item) => item.OrderItems)
+  @ManyToOne(() => Product, (product) => product.orderItems)
   @JoinColumn({ name: 'itemId' })
-  item: Item;
+  product: Product;
 
   @ManyToOne(() => Order, (order) => order.orderItems)
   @JoinColumn({ name: 'orderId' })

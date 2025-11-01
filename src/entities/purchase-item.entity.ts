@@ -11,7 +11,7 @@ import {
   Unique,
   BeforeInsert,
 } from 'typeorm';
-import { Item } from './item.entity';
+import { Product } from './product.entity';
 import { Purchase } from './purchase.entity';
 import { UOM } from './uom.entity';
 import { PurchaseItemNote } from './purchase-item-note.entity';
@@ -64,9 +64,9 @@ export class PurchaseItems {
   )
   purchaseItemNotes: PurchaseItemNote[];
 
-  @ManyToOne(() => Item, (item) => item.purchases)
+  @ManyToOne(() => Product, (product) => product.purchases)
   @JoinColumn({ name: 'itemId' })
-  item: Item;
+  product: Product;
 
   @ManyToOne(() => Purchase, (purchase) => purchase.purchaseItems)
   @JoinColumn({ name: 'purchaseId' })

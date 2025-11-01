@@ -4,12 +4,13 @@ import {
   PrimaryColumn,
   Column,
   ManyToOne,
+  JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
   Unique,
   BeforeInsert,
 } from 'typeorm';
-import { Item } from './item.entity';
+import { Product } from './product.entity';
 
 @Entity()
 @Unique(['name', 'itemId'])
@@ -32,8 +33,9 @@ export class Attribute {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToOne(() => Item, (item) => item.attributes)
-  items: Item;
+  @ManyToOne(() => Product, (product) => product.attributes)
+  @JoinColumn({ name: 'itemId' })
+  product: Product;
 
   @BeforeInsert()
   private setIdIfMissing(): void {

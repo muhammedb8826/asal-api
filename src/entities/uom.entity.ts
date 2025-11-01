@@ -18,7 +18,7 @@ import { OperatorStock } from './operator-stock.entity';
 import { OrderItems } from './order-item.entity';
 import { PurchaseItems } from './purchase-item.entity';
 import { SaleItems } from './sale-item.entity';
-import { Item } from './item.entity';
+import { Product } from './product.entity';
 
 @Entity('uom')
 @Unique(['name', 'abbreviation', 'unitCategoryId'])
@@ -70,11 +70,11 @@ export class UOM {
   @JoinColumn({ name: 'unitCategoryId' })
   unitCategory: UnitCategory;
 
-  @OneToMany(() => Item, (item) => item.defaultUom)
-  defaultUom: Item[];
+  @OneToMany(() => Product, (product) => product.defaultUom)
+  defaultUom: Product[];
 
-  @OneToMany(() => Item, (item) => item.purchaseUom)
-  purchaseUom: Item[];
+  @OneToMany(() => Product, (product) => product.purchaseUom)
+  purchaseUom: Product[];
 
   @BeforeInsert()
   private setIdIfMissing(): void {

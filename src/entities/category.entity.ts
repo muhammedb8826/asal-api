@@ -8,7 +8,7 @@ import {
   UpdateDateColumn,
   BeforeInsert,
 } from 'typeorm';
-import { Item } from './item.entity';
+import { Product } from './product.entity';
 
 @Entity('categories')
 export class Category {
@@ -30,8 +30,8 @@ export class Category {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @OneToMany(() => Item, (item) => item.category)
-  items: Item[];
+  @OneToMany(() => Product, (product) => product.category)
+  products: Product[];
 
   @BeforeInsert()
   private setIdIfMissing(): void {

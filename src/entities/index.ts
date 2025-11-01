@@ -4,7 +4,7 @@ export * from './commission.entity';
 export * from './customer.entity';
 export * from './discount.entity';
 export * from './fixed-cost.entity';
-export * from './item.entity';
+export * from './product.entity';
 export * from './category.entity';
 export * from './order-item-notes.entity';
 export * from './order-item.entity';
