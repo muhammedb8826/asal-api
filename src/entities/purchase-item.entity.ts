@@ -17,7 +17,7 @@ import { UOM } from './uom.entity';
 import { PurchaseItemNote } from './purchase-item-note.entity';
 
 @Entity('purchase_items')
-@Unique(['purchaseId', 'itemId'])
+@Unique(['purchaseId', 'productId'])
 export class PurchaseItems {
   @PrimaryColumn('uuid')
   id: string;
@@ -26,7 +26,7 @@ export class PurchaseItems {
   purchaseId: string;
 
   @Column()
-  itemId: string;
+  productId: string;
 
   @Column()
   quantity: number;
@@ -58,6 +58,9 @@ export class PurchaseItems {
   @Column('float')
   unit: number;
 
+  @Column('float')
+  baseQuantity: number;
+
   @OneToMany(
     () => PurchaseItemNote,
     (purchaseItemNote) => purchaseItemNote.purchaseItem,
@@ -65,7 +68,7 @@ export class PurchaseItems {
   purchaseItemNotes: PurchaseItemNote[];
 
   @ManyToOne(() => Product, (product) => product.purchases)
-  @JoinColumn({ name: 'itemId' })
+  @JoinColumn({ name: 'productId' })
   product: Product;
 
   @ManyToOne(() => Purchase, (purchase) => purchase.purchaseItems)
@@ -75,6 +78,10 @@ export class PurchaseItems {
   @ManyToOne(() => UOM, (uom) => uom.purchaseItems)
   @JoinColumn({ name: 'uomId' })
   uoms: UOM;
+
+  @ManyToOne(() => UOM)
+  @JoinColumn({ name: 'baseUomId' })
+  baseUom: UOM;
 
   @BeforeInsert()
   private setIdIfMissing(): void {

@@ -54,7 +54,7 @@ export class Purchase {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Column()
+  @Column({ nullable: true })
   purchaserId: string;
 
   @OneToMany(() => PurchaseItems, (purchaseItems) => purchaseItems.purchase)
