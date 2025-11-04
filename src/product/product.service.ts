@@ -59,6 +59,19 @@ export class ProductService {
     imageFilename?: string,
   ): Promise<Product> {
     const row = await this.findOne(id);
+    const toBool = (v: unknown): boolean | undefined => {
+      if (v === undefined || v === null) return undefined;
+      if (typeof v === 'boolean') return v;
+      if (typeof v === 'string' || typeof v === 'number') {
+        const s = String(v).trim().toLowerCase();
+        if (s === 'true' || s === '1' || s === 'yes' || s === 'on') return true;
+        if (s === 'false' || s === '0' || s === 'no' || s === 'off')
+          return false;
+      }
+      return undefined;
+    };
+    const canBePurchasedNorm = toBool(dto.canBePurchased);
+    const canBeSoldNorm = toBool(dto.canBeSold);
     const updated = this.productRepository.merge(row, {
       ...(dto.name !== undefined ? { name: dto.name } : {}),
       ...(dto.internalNote !== undefined
@@ -68,10 +81,10 @@ export class ProductService {
         ? { reorderLevel: dto.reorderLevel }
         : {}),
       ...(dto.categoryId !== undefined ? { categoryId: dto.categoryId } : {}),
-      ...(dto.canBePurchased !== undefined
-        ? { canBePurchased: dto.canBePurchased }
+      ...(canBePurchasedNorm !== undefined
+        ? { canBePurchased: canBePurchasedNorm }
         : {}),
-      ...(dto.canBeSold !== undefined ? { canBeSold: dto.canBeSold } : {}),
+      ...(canBeSoldNorm !== undefined ? { canBeSold: canBeSoldNorm } : {}),
       ...(dto.quantity !== undefined ? { quantity: dto.quantity } : {}),
       ...(dto.unitCategoryId !== undefined
         ? { unitCategoryId: dto.unitCategoryId }

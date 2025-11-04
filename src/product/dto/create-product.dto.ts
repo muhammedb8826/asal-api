@@ -1,4 +1,4 @@
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsBoolean,
   IsNotEmpty,
@@ -27,12 +27,24 @@ export class CreateProductDto {
   categoryId: string;
 
   @IsOptional()
-  @Type(() => Boolean)
+  @Transform(({ value }) => {
+    if (value === undefined) return undefined;
+    const v = String(value).trim().toLowerCase();
+    if (v === 'true' || v === '1' || v === 'yes' || v === 'on') return true;
+    if (v === 'false' || v === '0' || v === 'no' || v === 'off') return false;
+    return Boolean(value);
+  })
   @IsBoolean()
   canBePurchased?: boolean;
 
   @IsOptional()
-  @Type(() => Boolean)
+  @Transform(({ value }) => {
+    if (value === undefined) return undefined;
+    const v = String(value).trim().toLowerCase();
+    if (v === 'true' || v === '1' || v === 'yes' || v === 'on') return true;
+    if (v === 'false' || v === '0' || v === 'no' || v === 'off') return false;
+    return Boolean(value);
+  })
   @IsBoolean()
   canBeSold?: boolean;
 

@@ -10,8 +10,8 @@ import {
 } from 'typeorm';
 import { Purchase } from './purchase.entity';
 
-@Entity('vendors')
-export class Vendor {
+@Entity('suppliers')
+export class Supplier {
   @PrimaryColumn('uuid')
   id: string;
 
@@ -42,7 +42,7 @@ export class Vendor {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @OneToMany(() => Purchase, (purchase) => purchase.vendor)
+  @OneToMany(() => Purchase, (purchase) => purchase.supplier)
   purchases: Purchase[];
 
   @BeforeInsert()

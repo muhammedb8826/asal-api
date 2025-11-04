@@ -1,65 +1,59 @@
-export interface ApiResponse<T = any> {
+export interface PaginatedMeta {
+  totalItems: number;
+  itemCount: number;
+  itemsPerPage: number;
+  totalPages: number;
+  currentPage: number;
+  sortBy?: string;
+  filters?: Record<string, unknown>;
+  search?: string;
+}
+
+export interface ApiResponse<T> {
   success: boolean;
   message: string;
   data?: T;
-  timestamp: string;
-  path?: string;
+  meta?: PaginatedMeta;
 }
 
-export interface SuccessResponse<T = any> extends ApiResponse<T> {
+export interface SuccessResponse<T> extends ApiResponse<T> {
   success: true;
   data: T;
 }
 
-export interface ErrorResponse extends ApiResponse {
+export interface ErrorResponse {
   success: false;
-  error: {
-    code: string;
-    details?: string;
-    field?: string;
-  };
+  message: string;
+  errors: Record<string, string>;
 }
 
-export interface PaginatedResponse<T = any> extends SuccessResponse<T[]> {
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-    hasNext: boolean;
-    hasPrev: boolean;
-  };
+export interface PaginatedResponse<T> extends SuccessResponse<T[]> {
+  meta: PaginatedMeta;
 }
 
 // Helper functions to create standardized responses
 export class ResponseBuilder {
   static success<T>(
     data: T,
-    message: string = 'Operation completed successfully',
+    message: string = 'Items fetched successfully',
+    meta?: PaginatedMeta,
   ): SuccessResponse<T> {
     return {
       success: true,
       message,
       data,
-      timestamp: new Date().toISOString(),
+      ...(meta ? { meta } : {}),
     };
   }
 
   static error(
     message: string,
-    code: string = 'INTERNAL_ERROR',
-    details?: string,
-    field?: string,
+    errors?: Record<string, string>,
   ): ErrorResponse {
     return {
       success: false,
       message,
-      timestamp: new Date().toISOString(),
-      error: {
-        code,
-        details,
-        field,
-      },
+      errors: errors ?? { general: message },
     };
   }
 
@@ -68,22 +62,27 @@ export class ResponseBuilder {
     page: number,
     limit: number,
     total: number,
-    message: string = 'Data retrieved successfully',
+    message: string = 'Items fetched successfully',
+    extras?: {
+      sortBy?: string;
+      filters?: Record<string, unknown>;
+      search?: string;
+    },
   ): PaginatedResponse<T> {
-    const totalPages = Math.ceil(total / limit);
-
+    const totalPages = Math.ceil(total / Math.max(limit, 1));
     return {
       success: true,
       message,
       data,
-      timestamp: new Date().toISOString(),
-      pagination: {
-        page,
-        limit,
-        total,
+      meta: {
+        totalItems: total,
+        itemCount: data.length,
+        itemsPerPage: limit,
         totalPages,
-        hasNext: page < totalPages,
-        hasPrev: page > 1,
+        currentPage: page,
+        ...(extras?.sortBy ? { sortBy: extras.sortBy } : {}),
+        ...(extras?.filters ? { filters: extras.filters } : {}),
+        ...(extras?.search ? { search: extras.search } : {}),
       },
     };
   }
@@ -109,54 +108,37 @@ export class ResponseBuilder {
   }
 
   static notFound(resource: string = 'Resource'): ErrorResponse {
-    return this.error(
-      `${resource} not found`,
-      'NOT_FOUND',
-      `The requested ${resource.toLowerCase()} could not be found`,
-    );
+    return this.error(`${resource} not found`);
   }
 
-  static validationError(field: string, details: string): ErrorResponse {
-    return this.error('Validation failed', 'VALIDATION_ERROR', details, field);
+  static validationError(errors: Record<string, string>): ErrorResponse {
+    return this.error('Validation failed', errors);
   }
 
   static unauthorized(message: string = 'Unauthorized access'): ErrorResponse {
-    return this.error(message, 'UNAUTHORIZED');
+    return this.error(message);
   }
 
   static forbidden(message: string = 'Access forbidden'): ErrorResponse {
-    return this.error(message, 'FORBIDDEN');
+    return this.error(message);
   }
 
-  static conflict(message: string, details?: string): ErrorResponse {
-    return this.error(message, 'CONFLICT', details);
+  static conflict(message: string): ErrorResponse {
+    return this.error(message);
   }
 
-  static badRequest(message: string, details?: string): ErrorResponse {
-    return this.error(message, 'BAD_REQUEST', details);
+  static badRequest(message: string): ErrorResponse {
+    return this.error(message);
   }
 
   static internalError(
     message: string = 'Internal server error',
   ): ErrorResponse {
-    return this.error(message, 'INTERNAL_ERROR');
+    return this.error(message);
   }
 }
 
 // Common error codes
-export const ErrorCodes = {
-  VALIDATION_ERROR: 'VALIDATION_ERROR',
-  NOT_FOUND: 'NOT_FOUND',
-  UNAUTHORIZED: 'UNAUTHORIZED',
-  FORBIDDEN: 'FORBIDDEN',
-  CONFLICT: 'CONFLICT',
-  BAD_REQUEST: 'BAD_REQUEST',
-  INTERNAL_ERROR: 'INTERNAL_ERROR',
-  DUPLICATE_ENTRY: 'DUPLICATE_ENTRY',
-  INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
-  TOKEN_EXPIRED: 'TOKEN_EXPIRED',
-  RATE_LIMIT_EXCEEDED: 'RATE_LIMIT_EXCEEDED',
-  SERVICE_UNAVAILABLE: 'SERVICE_UNAVAILABLE',
-} as const;
-
-export type ErrorCode = (typeof ErrorCodes)[keyof typeof ErrorCodes];
+// Kept for compatibility (no-op types)
+export const ErrorCodes = {} as const;
+export type ErrorCode = never;

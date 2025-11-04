@@ -7,7 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { ResponseBuilder, ErrorCodes } from './response.types';
+import { ErrorResponse, ResponseBuilder } from './response.types';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
@@ -19,7 +19,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
-    let errorResponse: any;
+    let errorResponse: ErrorResponse;
 
     if (exception instanceof HttpException) {
       status = exception.getStatus();
@@ -27,12 +27,15 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
       // Handle different types of HTTP exceptions
       switch (status) {
-        case HttpStatus.BAD_REQUEST:
-          errorResponse = ResponseBuilder.badRequest(
-            this.getErrorMessage(exceptionResponse),
-            this.getErrorDetails(exceptionResponse),
-          );
+        case HttpStatus.BAD_REQUEST: {
+          const errors = this.getValidationErrors(exceptionResponse);
+          errorResponse = errors
+            ? ResponseBuilder.validationError(errors)
+            : ResponseBuilder.badRequest(
+                this.getErrorMessage(exceptionResponse),
+              );
           break;
+        }
 
         case HttpStatus.UNAUTHORIZED:
           errorResponse = ResponseBuilder.unauthorized(
@@ -55,21 +58,20 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         case HttpStatus.CONFLICT:
           errorResponse = ResponseBuilder.conflict(
             this.getErrorMessage(exceptionResponse),
-            this.getErrorDetails(exceptionResponse),
           );
           break;
 
-        case HttpStatus.UNPROCESSABLE_ENTITY:
+        case HttpStatus.UNPROCESSABLE_ENTITY: {
+          const errors = this.getValidationErrors(exceptionResponse);
           errorResponse = ResponseBuilder.validationError(
-            this.getErrorField(exceptionResponse),
-            this.getErrorMessage(exceptionResponse),
+            errors ?? { general: this.getErrorMessage(exceptionResponse) },
           );
           break;
+        }
 
         default:
           errorResponse = ResponseBuilder.error(
             this.getErrorMessage(exceptionResponse),
-            this.getHttpStatusToErrorCode(status),
           );
       }
     } else {
@@ -85,29 +87,31 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     }
 
     // Add path information to the error response
-    errorResponse.path = request.url;
+    // Attach path for debugging in a type-safe way
+    errorResponse = { ...errorResponse, path: request.url } as ErrorResponse & {
+      path: string;
+    };
 
     // Log the error
     this.logger.error(`Exception occurred: ${errorResponse.message}`, {
       statusCode: status,
       path: request.url,
       method: request.method,
-      timestamp: errorResponse.timestamp,
-      errorCode: errorResponse.error?.code,
+      error: errorResponse.errors,
     });
 
     response.status(status).json(errorResponse);
   }
 
-  private getErrorMessage(exceptionResponse: any): string {
+  private getErrorMessage(exceptionResponse: unknown): string {
     if (typeof exceptionResponse === 'string') {
       return exceptionResponse;
     }
 
     if (exceptionResponse && typeof exceptionResponse === 'object') {
       return (
-        exceptionResponse.message ||
-        exceptionResponse.error ||
+        (exceptionResponse as { message?: string; error?: string }).message ||
+        (exceptionResponse as { message?: string; error?: string }).error ||
         'An error occurred'
       );
     }
@@ -115,40 +119,29 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     return 'An error occurred';
   }
 
-  private getErrorDetails(exceptionResponse: any): string | undefined {
-    if (exceptionResponse && typeof exceptionResponse === 'object') {
-      return exceptionResponse.details || exceptionResponse.error || undefined;
+  private getValidationErrors(
+    exceptionResponse: unknown,
+  ): Record<string, string> | null {
+    if (!exceptionResponse || typeof exceptionResponse !== 'object')
+      return null;
+    // Nest validation pipe commonly returns { message: string | string[], error: string, statusCode: number }
+    // or { message: ValidationError[], ... }
+    const msg = (exceptionResponse as { message?: unknown }).message;
+    if (Array.isArray(msg)) {
+      // If formatted like ["field1 should not be empty", ...], attempt to map by first word as field
+      const errors: Record<string, string> = {};
+      for (const m of msg) {
+        if (typeof m === 'string') {
+          const [field] = m.split(' ');
+          errors[field] = m;
+        }
+      }
+      return Object.keys(errors).length ? errors : null;
     }
-    return undefined;
-  }
-
-  private getErrorField(exceptionResponse: any): string {
-    if (exceptionResponse && typeof exceptionResponse === 'object') {
-      return exceptionResponse.field || 'unknown';
+    const errorsObj = (exceptionResponse as { errors?: unknown }).errors;
+    if (errorsObj && typeof errorsObj === 'object') {
+      return errorsObj as Record<string, string>;
     }
-    return 'unknown';
-  }
-
-  private getHttpStatusToErrorCode(status: number): string {
-    switch (status) {
-      case HttpStatus.BAD_REQUEST:
-        return ErrorCodes.BAD_REQUEST;
-      case HttpStatus.UNAUTHORIZED:
-        return ErrorCodes.UNAUTHORIZED;
-      case HttpStatus.FORBIDDEN:
-        return ErrorCodes.FORBIDDEN;
-      case HttpStatus.NOT_FOUND:
-        return ErrorCodes.NOT_FOUND;
-      case HttpStatus.CONFLICT:
-        return ErrorCodes.CONFLICT;
-      case HttpStatus.UNPROCESSABLE_ENTITY:
-        return ErrorCodes.VALIDATION_ERROR;
-      case HttpStatus.TOO_MANY_REQUESTS:
-        return ErrorCodes.RATE_LIMIT_EXCEEDED;
-      case HttpStatus.SERVICE_UNAVAILABLE:
-        return ErrorCodes.SERVICE_UNAVAILABLE;
-      default:
-        return ErrorCodes.INTERNAL_ERROR;
-    }
+    return null;
   }
 }

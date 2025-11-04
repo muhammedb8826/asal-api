@@ -10,6 +10,7 @@ import { UomModule } from './uom/uom.module';
 import { CustomerModule } from './customer/customer.module';
 import { UnitCategoryModule } from './unit-category/unit-category.module';
 import { ProductModule } from './product/product.module';
+import { SupplierModule } from './supplier/supplier.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -37,6 +38,7 @@ import configuration from './config/configuration';
     CustomerModule,
     UnitCategoryModule,
     ProductModule,
+    SupplierModule,
   ],
   controllers: [AppController],
   providers: [AppService],

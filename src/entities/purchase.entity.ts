@@ -10,7 +10,7 @@ import {
   OneToMany,
   BeforeInsert,
 } from 'typeorm';
-import { Vendor } from './vendor.entity';
+import { Supplier } from './supplier.entity';
 import { PurchaseItems } from './purchase-item.entity';
 
 @Entity('purchases')
@@ -22,7 +22,7 @@ export class Purchase {
   series: string;
 
   @Column()
-  vendorId: string;
+  supplierId: string;
 
   @Column()
   status: string;
@@ -60,9 +60,9 @@ export class Purchase {
   @OneToMany(() => PurchaseItems, (purchaseItems) => purchaseItems.purchase)
   purchaseItems: PurchaseItems[];
 
-  @ManyToOne(() => Vendor, (vendor) => vendor.purchases)
-  @JoinColumn({ name: 'vendorId' })
-  vendor: Vendor;
+  @ManyToOne(() => Supplier)
+  @JoinColumn({ name: 'supplierId' })
+  supplier: Supplier;
 
   @BeforeInsert()
   private setIdIfMissing(): void {
