@@ -1,4 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
+const { hash: bcryptHash, compare: bcryptCompare } = bcrypt as unknown as {
+  hash: (data: string, saltOrRounds: number) => Promise<string>;
+  compare: (data: string, encrypted: string) => Promise<boolean>;
+};
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
@@ -13,9 +23,13 @@ export class UsersService {
   ) {}
 
   async create(dto: CreateUserDto): Promise<User> {
+    if (dto.confirmPassword !== dto.password) {
+      throw new BadRequestException('Passwords do not match');
+    }
+    const hashed = await bcryptHash(dto.password, 10);
     const entity = this.userRepo.create({
       email: dto.email,
-      password: dto.password,
+      password: hashed,
       address: dto.address,
       first_name: dto.firstName ?? undefined,
       last_name: dto.lastName ?? undefined,
@@ -26,9 +40,26 @@ export class UsersService {
       roles: dto.roles ?? undefined,
       is_active: dto.isActive ?? true,
       passwordRT: null,
-      confirm_password: dto.password,
+      confirm_password: hashed,
     });
     return await this.userRepo.save(entity);
+  }
+
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<void> {
+    const user = await this.findOne(userId);
+    const ok = await bcryptCompare(currentPassword, user.password);
+    if (!ok) throw new UnauthorizedException('Current password is incorrect');
+    const sameAsOld = await bcryptCompare(newPassword, user.password);
+    if (sameAsOld)
+      throw new BadRequestException('New password must be different');
+    const newHashed = await bcryptHash(newPassword, 10);
+    user.password = newHashed;
+    user.confirm_password = newHashed;
+    await this.userRepo.save(user);
   }
 
   async findAll(
@@ -78,5 +109,11 @@ export class UsersService {
   async remove(id: string): Promise<void> {
     const row = await this.findOne(id);
     await this.userRepo.remove(row);
+  }
+
+  async updateProfileImage(userId: string, filename: string): Promise<User> {
+    const row = await this.findOne(userId);
+    row.profile = filename;
+    return await this.userRepo.save(row);
   }
 }

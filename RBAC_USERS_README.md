@@ -36,6 +36,7 @@ All Users endpoints require `ADMIN` role via `@Roles(Role.ADMIN)`.
 {
   "email": "jane@example.com",
   "password": "StrongP@ss1",
+  "confirmPassword": "StrongP@ss1",
   "address": "Addis Ababa",
   "firstName": "Jane",
   "lastName": "Doe",
@@ -48,7 +49,9 @@ All Users endpoints require `ADMIN` role via `@Roles(Role.ADMIN)`.
 }
 ```
 - Response: standard success with created user
-- Note: All field names use camelCase (e.g., `firstName`, `lastName`, `isActive`). The backend automatically maps these to snake_case database columns.
+- Notes:
+  - All field names use camelCase (e.g., `firstName`, `lastName`, `isActive`). The backend automatically maps these to snake_case database columns.
+  - `confirmPassword` is required and must match `password`.
 
 ### List Users
 - Method: GET
@@ -80,6 +83,61 @@ All Users endpoints require `ADMIN` role via `@Roles(Role.ADMIN)`.
 - Method: DELETE
 - URL: `/users/:id`
 
+### Change My Password
+- Method: PATCH
+- URL: `/users/me/change-password`
+- Auth: any signed-in user (JWT required)
+- Body:
+```json
+{
+  "currentPassword": "OldP@ss1",
+  "newPassword": "NewP@ss2",
+  "confirmNewPassword": "NewP@ss2"
+}
+```
+- Responses:
+  - 204 No Content on success
+  - 400 if new password and confirmation do not match
+  - 401 if current password is incorrect or user not authenticated
+
+### Get My Profile
+- Method: GET
+- URL: `/users/me`
+- Auth: any signed-in user (JWT required)
+- Response: standard success with current user data
+
+### Update My Profile
+- Method: PATCH
+- URL: `/users/me`
+- Auth: any signed-in user (JWT required)
+- Body: any subset of user fields (partial, using camelCase)
+- Note: Users cannot update `roles` or `isActive` (admin-only fields)
+- Example:
+```json
+{
+  "firstName": "Jane",
+  "lastName": "Smith",
+  "phone": "+251900000000",
+  "address": "New Address"
+}
+```
+
+### Upload My Profile Image
+- Method: **PATCH** (not PUT)
+- URL: **`/users/me/profile`** (plural "users", not "user")
+- Auth: any signed-in user (JWT required)
+- Headers:
+  - `Authorization: Bearer <access_token>`
+  - `Content-Type: multipart/form-data` (set automatically by client)
+- Multipart form-data:
+  - Field name: `image` (file)
+- Limits: max 5MB
+- On success: 200 OK with updated user (field `profile` is the stored filename)
+- Files are stored under `uploads/profiles/`; serve via your static files config (already enabled in `main.ts`).
+- **Common mistakes:**
+  - ❌ `PUT /user/profile` (wrong method and path)
+  - ✅ `PATCH /users/me/profile` (correct)
+
 ## How to Use Roles in Other Controllers
 Example:
 ```ts
@@ -98,9 +156,11 @@ The `RolesGuard` is registered globally in `UsersModule` via `APP_GUARD`. If you
 - Hide/disable UI actions based on the current user's role to avoid unnecessary 403s.
 
 ## Common Errors
-- 403 Forbidden: user lacks required role or JWT missing role claim
-- 409 Conflict: creating user with duplicate `email` or `phone`
-- 400 Validation: invalid email/phone or missing fields
+- **404 Not Found**: Wrong endpoint path (e.g., `/user/profile` instead of `/users/me/profile`) or wrong HTTP method (e.g., `PUT` instead of `PATCH`)
+- **401 Unauthorized**: Missing or invalid JWT token in `Authorization` header
+- **403 Forbidden**: user lacks required role or JWT missing role claim
+- **409 Conflict**: creating user with duplicate `email` or `phone`
+- **400 Validation**: invalid email/phone or missing fields, or no file uploaded for profile image
 
 ## Roadmap (optional)
 - Role management UI
