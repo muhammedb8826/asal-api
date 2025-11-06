@@ -8,6 +8,7 @@ import {
   BeforeInsert,
 } from 'typeorm';
 import { Role } from '../enums/role.enum';
+import { Gender } from '../enums/gender.enum';
 
 @Entity('user')
 export class User {
@@ -35,8 +36,8 @@ export class User {
   @Column({ nullable: true })
   first_name: string;
 
-  @Column({ default: 'MALE' })
-  gender: string;
+  @Column({ type: 'enum', enum: Gender, default: Gender.MALE })
+  gender: Gender;
 
   @Column({ nullable: true })
   last_name: string;

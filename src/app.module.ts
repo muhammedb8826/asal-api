@@ -13,7 +13,12 @@ import { ProductModule } from './product/product.module';
 import { SupplierModule } from './supplier/supplier.module';
 import { PurchaseModule } from './purchase/purchase.module';
 import { GrnModule } from './grn/grn.module';
+import { ApInvoiceModule } from './ap-invoice/ap-invoice.module';
+import { SupplierPaymentModule } from './supplier-payment/supplier-payment.module';
+import { SupplierCreditModule } from './supplier-credit/supplier-credit.module';
+import { ReportingModule } from './reporting/reporting.module';
 import configuration from './config/configuration';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -43,6 +48,11 @@ import configuration from './config/configuration';
     SupplierModule,
     PurchaseModule,
     GrnModule,
+    ApInvoiceModule,
+    SupplierPaymentModule,
+    SupplierCreditModule,
+    ReportingModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

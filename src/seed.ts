@@ -1,6 +1,7 @@
 import { User } from './entities/user.entity';
 import { FixedCost } from './entities/fixed-cost.entity';
 import { Role } from './enums/role.enum';
+import { Gender } from './enums/gender.enum';
 import bcrypt from 'bcrypt';
 import { DataSource } from 'typeorm';
 import * as dotenv from 'dotenv';
@@ -10,7 +11,7 @@ interface AdminUser {
   first_name: string;
   middle_name: string;
   last_name: string;
-  gender: string;
+  gender: Gender;
   phone: string;
   email: string;
   password: string;
@@ -54,7 +55,7 @@ async function seed() {
       first_name: 'ASAL',
       middle_name: 'PLC',
       last_name: 'ASAL',
-      gender: 'male',
+      gender: Gender.MALE,
       phone: '+251905078826',
       email: 'admin@asal.com',
       password: adminPassword,
