@@ -26,3 +26,5 @@ export * from './user-machine.entity';
 export * from './user.entity';
 export * from './file-path.entity';
 export * from './supplier.entity';
+export * from './grn.entity';
+export * from './grn-item.entity';

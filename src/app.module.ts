@@ -12,6 +12,7 @@ import { UnitCategoryModule } from './unit-category/unit-category.module';
 import { ProductModule } from './product/product.module';
 import { SupplierModule } from './supplier/supplier.module';
 import { PurchaseModule } from './purchase/purchase.module';
+import { GrnModule } from './grn/grn.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -41,6 +42,7 @@ import configuration from './config/configuration';
     ProductModule,
     SupplierModule,
     PurchaseModule,
+    GrnModule,
   ],
   controllers: [AppController],
   providers: [AppService],

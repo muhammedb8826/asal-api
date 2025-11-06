@@ -172,7 +172,10 @@ Validation errors:
   - `baseUomId` must belong to the product's `unitCategoryId` AND must be the base unit (`baseUnit = true`)
   - Server computes `unit = selectedUom.conversionRate / baseUom.conversionRate` (ignores client-submitted `unit` for security)
   - Server computes `baseQuantity = quantity * unit`
-  - Errors are per-line, e.g.:
+  - **NEW**: If purchase has GRNs (Goods Receipt Notes):
+    - Cannot delete purchase items that have been received in GRNs
+    - Cannot reduce quantity below already received quantity
+    - Error examples:
 ```json
 {
   "success": false,
@@ -183,11 +186,57 @@ Validation errors:
   }
 }
 ```
+- **NEW**: Error when trying to delete item with GRNs:
+```json
+{
+  "success": false,
+  "message": "Validation failed",
+  "errors": {
+    "general": "Cannot delete purchase item <id> (product: <productId>) because it has been received in GRNs"
+  }
+}
+```
+- **NEW**: Error when reducing quantity below received:
+```json
+{
+  "success": false,
+  "message": "Validation failed",
+  "errors": {
+    "general": "Cannot reduce quantity for product <productId>. New baseQuantity (<new>) is less than received quantity (<received>)"
+  }
+}
+```
 
 #### Delete Purchase
+#### Get Purchase Received Summary
+- Method: GET
+- URL: `/purchases/:id/received-summary`
+- Response (200):
+```json
+[
+  {
+    "purchaseItemId": "<uuid>",
+    "orderedBaseQuantity": 200,
+    "totalReceived": 150,
+    "remaining": 50
+  }
+]
+```
+Use this to compute and display Ordered / Received / Remaining and to cap GRN inputs client-side.
 - Method: DELETE
 - URL: `/purchases/:id`
-- Response (204 -> standardized success wrapper):
+- **NEW**: Cannot delete purchase if it has associated GRNs (Goods Receipt Notes)
+- Error response (400):
+```json
+{
+  "success": false,
+  "message": "Cannot delete purchase because it has associated GRNs (Goods Receipt Notes). Please delete the GRNs first.",
+  "errors": {
+    "general": "Cannot delete purchase because it has associated GRNs (Goods Receipt Notes). Please delete the GRNs first."
+  }
+}
+```
+- Success response (204 -> standardized success wrapper):
 ```json
 {
   "success": true,
@@ -211,6 +260,27 @@ Validation errors:
   - Server computes `baseQuantity = quantity * unit` (stored in base units)
   - Responses include both `unit` and `baseQuantity` for each line item
   - Inventory should be stored and managed in base units only
+
+#### **NEW: Purchase Editing Restrictions (When GRNs Exist)**
+- **Check for GRNs before editing**: Before allowing purchase item edits, check if the purchase has any GRNs by fetching the purchase details.
+- **UI Restrictions**:
+  - If purchase has GRNs, show a warning: "This purchase has received items. Editing is restricted."
+  - Disable/disable delete button for purchase items that have GRN references
+  - Show received vs ordered quantities to help users understand restrictions
+  - Prevent quantity reductions below already received amounts
+- **Error Handling**:
+  - Handle error: `"Cannot delete purchase item <id> (product: <productId>) because it has been received in GRNs"`
+  - Handle error: `"Cannot reduce quantity for product <productId>. New baseQuantity (<new>) is less than received quantity (<received>)"`
+  - Show user-friendly messages explaining why the operation is blocked
+
+#### **NEW: Purchase Deletion Restrictions**
+- **Check for GRNs before deletion**: Always check if purchase has GRNs before showing delete button
+- **UI Behavior**:
+  - If purchase has GRNs, disable delete button or show warning
+  - Display message: "Cannot delete purchase with received items. Delete GRNs first."
+- **Error Handling**:
+  - Handle error: `"Cannot delete purchase because it has associated GRNs (Goods Receipt Notes). Please delete the GRNs first."`
+  - Show user-friendly message with link to view associated GRNs
 
 ### Roadmap (optional)
 - Receiving (GRN) linkage and stock updates

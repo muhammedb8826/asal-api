@@ -64,6 +64,9 @@ export class Product {
   @Column({ nullable: true })
   image: string;
 
+  @Column({ default: 1, type: 'int' })
+  version: number; // Optimistic locking for concurrent updates (starts at 1, increments on update)
+
   @OneToMany(() => Pricing, (pricing) => pricing.product)
   pricing: Pricing[];
 

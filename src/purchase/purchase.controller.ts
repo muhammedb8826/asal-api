@@ -40,6 +40,12 @@ export class PurchaseController {
     return this.purchaseService.findOne(id);
   }
 
+  @Get(':id/received-summary')
+  @HttpCode(HttpStatus.OK)
+  getReceivedSummary(@Param('id') id: string) {
+    return this.purchaseService.getReceivedSummary(id);
+  }
+
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
   update(@Param('id') id: string, @Body() dto: UpdatePurchaseDto) {

@@ -5,6 +5,7 @@ import {
   IsNotEmpty,
   IsNumber,
   IsOptional,
+  IsPositive,
   IsString,
   IsUUID,
   ValidateNested,
@@ -16,6 +17,7 @@ export class CreatePurchaseItemDto {
 
   @Type(() => Number)
   @IsNumber()
+  @IsPositive()
   quantity: number;
 
   @Type(() => Number)
